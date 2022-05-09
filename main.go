@@ -20,7 +20,7 @@ func getFileExt(file fs.FileInfo) string {
 }
 
 func compressImage(dirname string, file fs.FileInfo) error {
-	buffer, err := ioutil.ReadFile(filepath.Join("./files", file.Name()))
+	buffer, err := ioutil.ReadFile(filepath.Join(dirname, file.Name()))
 	if err != nil {
 		return err
 	}
@@ -28,8 +28,8 @@ func compressImage(dirname string, file fs.FileInfo) error {
 	newFilename := getFilenameWithoutExt(file) + ".webp"
 	oldFilename := file.Name()
 
-	newFilepath := fmt.Sprintf(dirname+"/%s", newFilename)
-	oldFilepath := fmt.Sprintf(dirname+"/%s", oldFilename)
+	newFilepath := dirname + newFilename
+	oldFilepath := dirname + oldFilename
 
 	converted, err := bimg.NewImage(buffer).Convert(bimg.WEBP)
 	if err != nil {
@@ -41,12 +41,12 @@ func compressImage(dirname string, file fs.FileInfo) error {
 		return err
 	}
 
-	err = os.Remove(oldFilepath)
+	err = os.Remove("./" + oldFilepath)
 	if err != nil {
 		return err
 	}
 
-	err = bimg.Write(newFilepath, processed)
+	err = bimg.Write("./"+newFilepath, processed)
 	if err != nil {
 		return err
 	}
@@ -63,7 +63,7 @@ func main() {
 	for _, file := range files {
 		fmt.Println(file.Name())
 
-		err := compressImage("./files", file)
+		err := compressImage("files/", file)
 		if err != nil {
 			log.Println(err)
 			continue
